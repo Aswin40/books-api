@@ -1,5 +1,11 @@
 const express = require("express");
-const { addBook, isBookPresent, getAllBooks } = require("./storage");
+const {
+  addBook,
+  isBookPresent,
+  getAllBooks,
+  getBookById,
+  updateBook,
+} = require("./storage");
 
 const app = express();
 
@@ -22,8 +28,37 @@ app.post("/books", (req, res) => {
   }
 });
 
+app.get("/books/:id", (req, res) => {
+  const { id } = req.params;
+  const book = getBookById(Number(id));
+
+  if (!book) {
+    res
+      .status(400)
+      .send({ status: "400", message: "Book with given id not found" });
+    return;
+  }
+
+  res.send(book);
+});
+
 app.get("/books", (req, res) => {
   res.send(getAllBooks());
+});
+
+app.put("/books", (req, res) => {
+  const bookDetails = req.body;
+
+  const book = getBookById(bookDetails.id);
+  if (!book) {
+    res
+      .status(400)
+      .send({ status: "400", message: "Book with given id not found" });
+    return;
+  }
+
+  updateBook(bookDetails);
+  res.send("Book edited successfully");
 });
 
 app.listen(port, hostname, () => {
